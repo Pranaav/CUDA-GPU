@@ -1,9 +1,8 @@
-
-Assignment by Adwaith H Sivam (2018MT60777) & Pranaav (2018MT60786)
+By Pranaav 
 
 Aim -
-	We were assigned to do a query from the last assignment of last semesters COL106 using CUDA.
-	The assignment involved a mesh with triangles and two triangles where considered connected if they share a common edge.
+	I am trying to do a query from the mesh project using CUDA.
+	The project involved a mesh with triangles and two triangles where considered connected if they share a common edge.
 	We chose to do the following queries.
 
 	1.is Connected -
