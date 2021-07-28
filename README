@@ -1,0 +1,48 @@
+
+Assignment by Adwaith H Sivam (2018MT60777) & Pranaav (2018MT60786)
+
+Aim -
+	We were assigned to do a query from the last assignment of last semesters COL106 using CUDA.
+	The assignment involved a mesh with triangles and two triangles where considered connected if they share a common edge.
+	We chose to do the following queries.
+
+	1.is Connected -
+		To determine whether a given pair of triangles are connected by a path.
+	2.Number of Connected Components -
+		A connected component is a set of triangles connected to each other by a path and not connected to any other triangle.
+		To determine the number of all such connected components.
+
+Our Implementation
+	The triangles where stored in a vector and their adjacency lists were stored in a vector of vectors.
+	The adjacency list has the id-s (position in the vector) of the triangle.
+	For faster look up, std::map was used to store the points and the id-s of triangles the respective point belonged to.
+	std::unordered_map was not used because hashing floats may cause problems due to error in the values.
+	
+	To copy to the GPU, the adjacency lists were combined in to a single array 'adj' by keeping them one after the other.
+	The starting points of each of these adjacency list was stored in another array 'nov'.
+	
+	1.is Connected -
+		This was done using breadth first traversal starting from the first triangle.
+		The frontier and visited triangles were maintained using boolean arrays 'f' and 's' in the GPU of the length of number of triangles.
+		Initially, only the source triangle was in frontier and visited. 
+		Each thread takes care of each triangle. If it was in the frontier, it's neighbours which are not in visited are added to the frontier.
+		The kernel is launched in a loop till the frontier became empty or till the second triangle was visited.
+		A flag was used to check if the frontier is empty by checking if any new vertex was added to it.
+		
+	2.Number of Connected Components -
+		This was done by coloring all triangles with a color equal to their id. 
+		Then changing the color of triangles with low-colored neighbours.
+		For this an array 'col' with colors of each triangle.
+		And boolean arrays 'f' and 'nf' to maintain frontier and new frontier was used.
+		frontier consists of triangles whose color has not yet been fixed.
+		Initially all triangles are in the frontier.
+		Each thread takes care of each triangle. If the triangle was in the frontier, we loop through all its neighbours 
+		and use atomicMin to change the color of it's neighbour if it has a larger color.
+		The triangle's color is also changed in case we find a neighbour with smaller color.
+		Triangles whose color was just changed are added to the new frontier.
+		After the kernel the new fronier and fronter are swapped.
+		The kernel is launched in a loop till the new frontier became empty.
+		A flag was used to check if the new frontier is empty by checking if any new vertex was added to it.
+		Finally another kernel was launched to count all triangles with color equal to their id usind atomicAdd.
+		
+		
